@@ -119,8 +119,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # media の設定を追加（5/26）
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/' # ブラウザ用の「ＵＲＬの頭」
+MEDIA_ROOT = BASE_DIR / 'media' # サーバー内の「絶対パス」
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

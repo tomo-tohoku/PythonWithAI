@@ -8,6 +8,13 @@ from playwright.sync_api import sync_playwright
 import os
 from pathlib import Path
 
+# 追加（5/27）
+import uuid
+from .models import HtmlFile
+from django.core.files.base import ContentFile
+import traceback
+from concurrent.futures import ThreadPoolExecutor
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 INTERMEDIATE_FILE_PATH = os.path.join(BASE_DIR, "templates/edit_html/intermediate.html")
 RESULT_FILE_PATH = os.path.join(BASE_DIR, "templates/edit_html/result.html")
@@ -44,10 +51,12 @@ def result(request):
         # sync_playwright()の終了処理で「Playwrightエンジン全体」を終了させ、ブラウザも終了させる
         with sync_playwright() as p:
             # ブラウザの起動
+            # headless = True でブラウザを「画面表示なし」で起動する
             browser = p.chromium.launch(headless = True)
 
             # ブラウザ内に完全に独立した新しいセッションを作成するメソッド
             # イメージ：シークレットモードを新しく立ち上げる
+            # user_agent でどのブラウザ・ＯＳからアクセスしているかを名乗るための文字列
             context = browser.new_context(
                 user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             )
@@ -76,37 +85,48 @@ def result(request):
                 # time.sleep(2) # time.sleep(2) はあまり良くない
                 page.wait_for_load_state('networkidle') # 追記部分
 
-                full_html = page.content() # page.content() の返り値は str
-                # print(full_html) # デバッグ用
+                intermediate_html = page.content() # page.content() の返り値は str
+                # print(intermediate_html) # デバッグ用
 
-                # w+ で新規作成して読み書き
-                with open(INTERMEDIATE_FILE_PATH, mode = "w+", encoding = "utf-8") as f:
-                    f.write(full_html)
-                    f.flush() # バッファ内容を強制的にファイルへ書き込む
-                    f.seek(0) # ファイルポインタを先頭へ移動する
-                    intermediate_html = f.read()
-                    # print(intermediate_html) # デバッグ用
-                with open(RESULT_FILE_PATH, mode = "w", encoding = "utf-8") as f:
-                    # soup = BeautifulSoup(intermediate_html, "html.parser") # html.parser は Python標準で解析性能が弱い 
-                    soup = BeautifulSoup(intermediate_html, "lxml") # lxml の方がいい　追記（5/26）
-                    custom_style = request.POST.get('style_area', '')
-                    if custom_style and soup.body: # custom_style が空文字でなく、かつ body タグが存在するなら
-                        style_tag = soup.new_tag('style')
-                        style_tag.string = custom_style
-                        soup.body.append(style_tag)
+                soup = BeautifulSoup(intermediate_html, "lxml")
 
-                    # 以前の書き方
-                    # if soup.body: # body タグが存在するなら
-                    #     soup.body.append(BeautifulSoup(custom_style, "lxml"))
+                html_file = HtmlFile(url = url)
 
-                    # 以前の書き方
-                    # f.write(str(soup))
-                    # return render(request, 'edit_html/result.html', params)
+                if soup.title:
+                    html_file.title = soup.title.text
+                else:
+                    html_file.title = "No title"
+                # print(html_file.title) # デバッグ用
 
-                    # 新しい書き方（5/26）
-                    html = str(soup)
-                    return HttpResponse(html)
+                unique_id = uuid.uuid4()
+
+                html_file.intermediate_file.save(
+                    f'intermediate_{unique_id}.html',
+                    ContentFile(intermediate_html.encode("utf-8")),
+                    save = False
+                )
+
+                custom_style = request.POST.get('style_area', '')
+                if custom_style and soup.body: # custom_style が空文字でなく、かつ body タグが存在するなら
+                    style_tag = soup.new_tag('style')
+                    style_tag.string = custom_style
+                    soup.body.append(style_tag)
+
+                result_html = str(soup)
+
+                html_file.result_file.save(
+                    f'result_{unique_id}.html',
+                    ContentFile(result_html.encode("utf-8")),
+                    save = False
+                )
+
+                # これにしたらうまくいった（5/28）
+                with ThreadPoolExecutor() as executor:
+                    executor.submit(html_file.save).result()
+
+                return HttpResponse(result_html)
             except Exception as e:
+                traceback.print_exc()
                 params['error_msg'] = f"エラー：予期せぬエラー\nエラーの詳細：\n{e}"
             finally:
                 browser.close()

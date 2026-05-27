@@ -19,11 +19,13 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+# path はＵＲＬとＶｉｅｗを結びつける
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('edit_html/', include('edit_html.urls'))
 ]
 
+# static はＵＲＬとフォルダ（ファイル群）を結びつける
 urlpatterns += static(
     settings.MEDIA_URL,
     document_root = settings.MEDIA_ROOT

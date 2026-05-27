@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.css" crossorigin="anonymous">
+</head>
+<body>
+    <nav class="navbar fixed-top navbar-expand navbar-light bg-light">
+        <ul style="width:100%" class="navbar-nav mr-auto">
+            <li class="nav-item"><a href="{% url 'index' %}" class="nav-link">top</a></li>
+            <li class="nav-item"><a href="{% url 'post' %}" class="nav-link">post</a></li>
+            <li class="nav-item"><a href="{% url 'goods' %}" class="nav-link">good</a></li>
+            <li class="nav-item nav-link fw-bold text-primary">
+                logined: "{{ login_user }}"
+            </li>
+        </ul>
+    </nav>
+</body>
+</html>
