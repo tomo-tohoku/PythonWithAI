@@ -15,6 +15,9 @@ from django.core.files.base import ContentFile
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 
+# 追加（6/22）
+from urllib.parse import urlparse # ＵＲＬ名から https://ドメイン名/ の部分を取り出す
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 INTERMEDIATE_FILE_PATH = os.path.join(BASE_DIR, "templates/edit_html/intermediate.html")
 RESULT_FILE_PATH = os.path.join(BASE_DIR, "templates/edit_html/result.html")
@@ -111,6 +114,13 @@ def result(request):
                     style_tag = soup.new_tag('style')
                     style_tag.string = custom_style
                     soup.body.append(style_tag)
+
+                # 追記（6/22）
+                if custom_style and soup.head:
+                    base_tag = soup.new_tag('base')
+                    parsed_url = urlparse(url)
+                    base_tag['href'] = f'{parsed_url.scheme}://{parsed_url.netloc}/'
+                    soup.head.append(base_tag)
 
                 result_html = str(soup)
 
