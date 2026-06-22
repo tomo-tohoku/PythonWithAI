@@ -23,11 +23,6 @@ from asgiref.sync import sync_to_async
 from playwright.async_api import async_playwright
 from django.contrib import messages
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-INTERMEDIATE_FILE_PATH = os.path.join(BASE_DIR, "templates/edit_html/intermediate.html")
-RESULT_FILE_PATH = os.path.join(BASE_DIR, "templates/edit_html/result.html")
-FILE_PATH_OBJ = Path(RESULT_FILE_PATH)
-
 # Create your views here.
 def index(request):
     if request.method == "GET":
