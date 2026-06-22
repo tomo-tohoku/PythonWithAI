@@ -201,6 +201,7 @@ def result(request):
 
             return HttpResponse(result_html)
 
+# 取得したＨＴＭＬデータをアレンジする関数
 async def arrange(request):
     if request.method == "POST":
         params = {
