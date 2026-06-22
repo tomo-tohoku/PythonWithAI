@@ -2,10 +2,10 @@
 
 {% block title %}edit_html{% endblock %}
 
-{% block header %}edit_html{% endblock %}
+{% block header %}HTML の取得 / 編集{% endblock %}
 
 {% block content %}
-<h2 class="fw-bold">特定のタグやクラス、ＩＤに style 属性を書き込む</h2>
+<h2 class="fw-bold">指定したタグやクラス、ID に特定の属性を書き込む</h2>
 <form action="{% url 'result' %}" method="post">
     {% csrf_token %}
     <table class="table">
@@ -44,7 +44,7 @@
     </div>  
 </div>
 
-<h2 class="fw-bold">ＵＲＬから取得したＨＴＭＬデータ</h2>
+<h2 class="fw-bold">URL から取得した HTML データ</h2>
 <pre class="p-3 rounded" style="background-color: #b6b6b6;">
     <code>
         {{ html_code }}

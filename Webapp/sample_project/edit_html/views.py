@@ -53,17 +53,18 @@ async def result(request):
                 messages.success(request, "サイトの保存を取り消しました")
                 return render(request, 'edit_html/index.html', params)
         else:
-            if FILE_PATH_OBJ.exists() == True and FILE_PATH_OBJ.is_file() == True:
-                params = {
-                    'error_msg_1': '',
-                    'error_msg_2': '',
-                    'edit_form': EditForm()
-                }
-                return render(request, 'edit_html/result.html', params)
-            else:
-                return redirect(to = '/edit_html')
+            return redirect(to = '/edit_html')
     elif request.method == "POST":
         if "get-it-now" in request.POST:
+            # intermediate_html が生成されて、result_html が生成されないという不均衡を解消する
+            unique_id = await sync_to_async(request.session.get)("unique_id")
+            try:
+                html_file = await sync_to_async(HtmlFile.objects.get)(intermediate_file__endswith = unique_id + ".html")
+                if not html_file.result_file:
+                    await sync_to_async(html_file.delete)()
+            except HtmlFile.DoesNotExist:
+                print("データなし")
+                
             params = {
                 'error_msg_1': '',
                 'error_msg_2': '',
@@ -181,18 +182,27 @@ async def result(request):
                     browser.close()
                 return render(request, 'edit_html/index.html', params)
         elif "arrange-later" in request.POST:
-            url = request.session.get("url")
-            html_file_id = request.session.get("html_file_id")
-            intermediate_file = request.session.get("intermediate_file")
-            unique_id = request.session.get("unique_id")
+            params = {
+                'error_msg_1': '',
+                'error_msg_2': '',
+                'edit_form': EditForm(),
+                'unique_id': '',
+                'title': '',
+            }
+
+            url = await sync_to_async(request.session.get)("url")
+            html_file_id = await sync_to_async(request.session.get)("html_file_id")
+            intermediate_file = await sync_to_async(request.session.get)("intermediate_file")
+            unique_id = await sync_to_async(request.session.get)("unique_id")
 
             soup = BeautifulSoup(intermediate_file, "lxml")
 
-            html_file = HtmlFile.objects.get(id = html_file_id)
+            html_file = await sync_to_async(HtmlFile.objects.get)(id = html_file_id)
 
             tag = request.POST.get('tag', '')
             selected_class = request.POST.get('selected_class', '')
             selected_id = request.POST.get('selected_id', '')
+            attr = request.POST.get('attr', '')
             style_area = request.POST.get('style_area', '')
 
             if soup.head:
@@ -210,9 +220,9 @@ async def result(request):
                 select_str = f'{tag}{selected_class}{selected_id}'
             tags = soup.select(select_str)
             for tag in tags:
-                old_style = tag.get("style", "")
+                old_style = tag.get(attr, "")
                 new_style = style_area
-                tag["style"] = old_style + new_style # 古いスタイルと結合
+                tag[attr] = old_style + new_style # 古いスタイルと結合
             
             result_html = str(soup)
 
@@ -224,12 +234,22 @@ async def result(request):
                     ContentFile(result_html.encode("utf-8")),
                     save = True
                 ).result()
-
-            return HttpResponse(result_html)
+            
+            params['unique_id'] = unique_id
+            return render(request, 'edit_html/result.html', params)
 
 # 取得したＨＴＭＬデータをアレンジする関数
 async def arrange(request):
     if request.method == "POST":
+        # intermediate_html が生成されて、result_html が生成されないという不均衡を解消する
+        unique_id = await sync_to_async(request.session.get)("unique_id")
+        try:
+            html_file = await sync_to_async(HtmlFile.objects.get)(intermediate_file__endswith = unique_id + ".html")
+            if not html_file.result_file:
+                await sync_to_async(html_file.delete)()
+        except HtmlFile.DoesNotExist:
+            print("データなし")
+
         params = {
             'error_msg_1': '',
             'error_msg_2': '',
@@ -308,6 +328,8 @@ async def arrange(request):
                     "html_file_id",
                     html_file.id
                 )
+
+                # 別の関数で共有できるようにセッションを使う
                 request.session["url"] = url
                 request.session["intermediate_file"] = str(soup)
                 request.session["unique_id"] = str(unique_id)

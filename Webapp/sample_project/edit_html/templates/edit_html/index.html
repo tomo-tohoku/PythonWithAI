@@ -2,7 +2,7 @@
 
 {% block title %}edit_html{% endblock %}
 
-{% block header %}edit_html{% endblock %}
+{% block header %}HTML の取得 / 編集{% endblock %}
 
 {% block content %}
 {% if messages %}
@@ -18,7 +18,7 @@
     {% endfor %}
 </div>
 {% endif %}
-<h2 class = "fw-bold">すぐにＨＴＭＬデータを取得およびアレンジして表示する</h2>
+<h2 class = "fw-bold">HTML の取得 / &lt;style&gt; タグの挿入</h2>
 <p class="fw-bold text-danger">{{ error_msg_1|linebreaksbr }}</p>
 <form action="{% url 'result' %}" method="post">
     {% csrf_token %}
@@ -32,7 +32,7 @@
         {{ edit_form.as_table }}
         <th>
             <td>
-                <input type="submit" value="取得 or アレンジ して表示する" class="btn btn-primary mt-2" name="get-it-now">
+                <input type="submit" value="取得 or 取得+タグ挿入 して結果を表示" class="btn btn-primary mt-2" name="get-it-now">
             </td>
         </th>
     </table>
@@ -58,7 +58,7 @@
     </div>  
 </div> 
         
-<h2 class = "fw-bold">最初にＨＴＭＬデータを取得して、そのデータを見てアレンジする</h2>
+<h2 class = "fw-bold">HTML の取得 / 特定のタグに属性を追加</h2>
 <p class="fw-bold text-danger">{{ error_msg_2|linebreaksbr }}</p>
 <form action="{% url 'arrange' %}" method="post">
     {% csrf_token %}
@@ -75,7 +75,7 @@
         </tr>
         <th>
             <td>
-                <input type="submit" value="取得だけして後でアレンジする" class="btn btn-primary mt-2" name="arrange-later">
+                <input type="submit" value="HTML 取得" class="btn btn-primary mt-2" name="arrange-later">
             </td>
         </th>
     </table>
