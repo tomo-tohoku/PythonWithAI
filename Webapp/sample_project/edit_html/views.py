@@ -19,6 +19,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 # 追加（6/22）
 from urllib.parse import urlparse # ＵＲＬ名から https://ドメイン名/ の部分を取り出す
+from asgiref.sync import sync_to_async
+from playwright.async_api import async_playwright
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 INTERMEDIATE_FILE_PATH = os.path.join(BASE_DIR, "templates/edit_html/intermediate.html")
@@ -47,7 +49,7 @@ def result(request):
         else:
             return redirect(to = '/edit_html')
     elif request.method == "POST":
-        if "get-it-now" in request.method:
+        if "get-it-now" in request.POST:
             params = {
                 'error_msg_1': '',
                 'error_msg_2': '',
@@ -121,13 +123,15 @@ def result(request):
                         style_tag = soup.new_tag('style')
                         style_tag.string = custom_style
                         soup.body.append(style_tag)
+                        print("styleタグが追加されました")
 
                     # 追記（6/22）
-                    if custom_style and soup.head:
+                    if soup.head:
                         base_tag = soup.new_tag('base')
                         parsed_url = urlparse(url)
                         base_tag['href'] = f'{parsed_url.scheme}://{parsed_url.netloc}/'
                         soup.head.append(base_tag)
+                        print("baseタグが追加されました")
 
                     result_html = str(soup)
 
@@ -150,15 +154,27 @@ def result(request):
                 finally:
                     browser.close()
                 return render(request, 'edit_html/index.html', params)
-        elif "arrange-later" in request.method:
-            soup = request.session.get("soup")
-            html_file = request.session.get("html_file")
+        elif "arrange-later" in request.POST:
+            url = request.session.get("url")
+            html_file_id = request.session.get("html_file_id")
+            intermediate_file = request.session.get("intermediate_file")
             unique_id = request.session.get("unique_id")
+
+            soup = BeautifulSoup(intermediate_file, "lxml")
+
+            html_file = HtmlFile.objects.get(id = html_file_id)
 
             tag = request.POST.get('tag', '')
             selected_class = request.POST.get('selected_class', '')
             selected_id = request.POST.get('selected_id', '')
             style_area = request.POST.get('style_area', '')
+
+            if soup.head:
+                base_tag = soup.new_tag('base')
+                parsed_url = urlparse(url)
+                base_tag['href'] = f'{parsed_url.scheme}://{parsed_url.netloc}/'
+                soup.head.append(base_tag)
+                print("baseタグが追加されました")
 
             if tag == '' and selected_class == '' and selected_id == '':
                 select_str = '*'
@@ -173,10 +189,20 @@ def result(request):
                 tag["style"] = old_style + new_style # 古いスタイルと結合
             
             result_html = str(soup)
+
+            # アレンジした後のＨＴＭＬファイルのデータだけ入れる
+            with ThreadPoolExecutor() as executor:
+                executor.submit(
+                    html_file.result_file.save,
+                    f'result_{unique_id}.html',
+                    ContentFile(result_html.encode("utf-8")),
+                    save = True
+                ).result()
+
             return HttpResponse(result_html)
 
 
-def arrange(request):
+async def arrange(request):
     if request.method == "POST":
         params = {
             'error_msg_1': '',
@@ -189,26 +215,26 @@ def arrange(request):
         url = request.POST['url']
 
         # sync_playwright()の終了処理で「Playwrightエンジン全体」を終了させ、ブラウザも終了させる
-        with sync_playwright() as p:
+        async with async_playwright() as p:
             # ブラウザの起動
             # headless = True でブラウザを「画面表示なし」で起動する
-            browser = p.chromium.launch(headless = True)
+            browser = await p.chromium.launch(headless = True)
 
             # ブラウザ内に完全に独立した新しいセッションを作成するメソッド
             # イメージ：シークレットモードを新しく立ち上げる
             # user_agent でどのブラウザ・ＯＳからアクセスしているかを名乗るための文字列
-            context = browser.new_context(
+            context = await browser.new_context(
                 user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             )
 
             # 新しいタブの作成
-            page = context.new_page()
+            page = await context.new_page()
 
             try:
                 # 指定したサイトに移動
                 # ネットワーク通信が発生しなくなるまで待機する
                 # response = page.goto(url, wait_until = 'networkidle', timeout = 5000)
-                response = page.goto(url, wait_until = 'networkidle', timeout = 15000) # タイムアウトを変更（5/26）
+                response = await page.goto(url, wait_until = 'networkidle', timeout = 15000) # タイムアウトを変更（5/26）
 
                 # レスポンスが取得できない
                 if response is None:
@@ -225,7 +251,7 @@ def arrange(request):
                 # time.sleep(2) # time.sleep(2) はあまり良くない
                 page.wait_for_load_state('networkidle') # 追記部分
 
-                intermediate_html = page.content() # page.content() の返り値は str
+                intermediate_html = await page.content() # page.content() の返り値は str
                 # print(intermediate_html) # デバッグ用
 
                 soup = BeautifulSoup(intermediate_html, "lxml")
@@ -248,15 +274,23 @@ def arrange(request):
                     save = False
                 )
 
+                with ThreadPoolExecutor() as executor:
+                    executor.submit(html_file.save).result()
+
                 # セッションがそのまま使えない問題を解決する
-                # request.session['soup'] = soup
-                # request.session['html_file'] = html_file
-                request.session['unique_id'] = str(unique_id)
+                await sync_to_async(request.session.__setitem__)(
+                    "html_file_id",
+                    html_file.id
+                )
+                # request.session["html_file_id"] = html_file.id
+                request.session["url"] = url
+                request.session["intermediate_file"] = str(soup)
+                request.session["unique_id"] = str(unique_id)
 
                 return render(request, 'edit_html/arrange.html', params)
             except Exception as e:
                 traceback.print_exc()
                 params['error_msg_2'] = f"エラー：予期せぬエラー\nエラーの詳細：\n{e}"
             finally:
-                browser.close()
+                await browser.close()
             return render(request, 'edit_html/index.html', params)
