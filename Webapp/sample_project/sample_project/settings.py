@@ -31,6 +31,10 @@ ALLOWED_HOSTS = ['localhost', '://pythonanywhere.com']
 # iframe を使えるようにするために "DENY" ではなく "SAMEORIGIN" にする
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
+# 追記（6/23）
+# ログインするときのＵＲＬを指定する
+LOGIN_URL = "/login/"
+
 
 # Application definition
 
@@ -41,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'edit_html'
+    'edit_html',
+    'accounts'
 ]
 
 MIDDLEWARE = [
@@ -104,6 +109,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# 追記（6/23）
+AUTH_USER_MODEL = "accounts.CustomUser"
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

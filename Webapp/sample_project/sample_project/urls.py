@@ -22,7 +22,8 @@ from django.conf.urls.static import static
 # path はＵＲＬとＶｉｅｗを結びつける
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('edit_html/', include('edit_html.urls'))
+    path('edit_html/', include('edit_html.urls')),
+    path('', include("accounts.urls"))
 ]
 
 # static はＵＲＬとフォルダ（ファイル群）を結びつける

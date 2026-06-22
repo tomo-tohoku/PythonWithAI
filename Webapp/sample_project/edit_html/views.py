@@ -22,8 +22,10 @@ from urllib.parse import urlparse # ＵＲＬ名から https://ドメイン名/ 
 from asgiref.sync import sync_to_async
 from playwright.async_api import async_playwright
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
+@login_required
 def index(request):
     if request.method == "GET":
         params = {
@@ -33,6 +35,7 @@ def index(request):
         }
         return render(request, 'edit_html/index.html', params)
 
+@login_required
 async def result(request):
     if request.method == "GET":
         params = {
@@ -64,7 +67,7 @@ async def result(request):
                     await sync_to_async(html_file.delete)()
             except HtmlFile.DoesNotExist:
                 print("データなし")
-                
+
             params = {
                 'error_msg_1': '',
                 'error_msg_2': '',
@@ -239,6 +242,7 @@ async def result(request):
             return render(request, 'edit_html/result.html', params)
 
 # 取得したＨＴＭＬデータをアレンジする関数
+@login_required
 async def arrange(request):
     if request.method == "POST":
         # intermediate_html が生成されて、result_html が生成されないという不均衡を解消する
