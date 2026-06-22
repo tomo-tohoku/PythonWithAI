@@ -147,7 +147,57 @@ def result(request):
                     with ThreadPoolExecutor() as executor:
                         executor.submit(html_file.save).result()
 
-                    return HttpResponse(result_html)
+                    result = f"""
+                    <html lang="ja">
+                    <head>
+                        <meta charset="utf-8">
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.css" crossorigin="anonymous">
+                        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+                        <title>aiueo</title>
+                    </head>
+                    <body>
+                        <nav class="navbar navbar-expand-lg p-0 navbar-light bg-light fixed-top">
+                            <div class="container-fluid">
+                                <!-- SitePick のロゴ -->
+                                <a class="navbar-brand" href="">
+                                    <img src="" style="height:60px;">
+                                </a>
+
+                                <!-- ハンバーガー -->
+                                <button class="navbar-toggler"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#menu"
+                                        aria-controls="menu"
+                                        aria-expanded="false">
+                                    <span class="navbar-toggler-icon"></span>
+                                </button>
+
+                                <!-- メニュー -->
+                                <div class="collapse navbar-collapse justify-content-end" id="menu">
+                                    <ul class="navbar-nav">
+                                        <li class="nav-item"><a class="nav-link mx-lg-5" href=""><h2>ホーム</h2></a></li>
+                                        <li class="nav-item"><a class="nav-link mx-lg-5" href=""><h2>保存したサイト</h2></a></li>
+                                        <li class="nav-item"><a class="nav-link mx-lg-5" href=""><h2>通知</h2></a></li>
+                                    </ul>
+
+                                    <span class="navbar-text mx-lg-5 fw-bold text-primary">
+                                        <h2>ログイン："aiueo"</h2>
+                                    </span>
+
+                                    <form class="d-flex">
+                                        <input class="form-control me-2" type="search" placeholder="検索">
+                                        <button class="btn btn-primary text-nowrap"><h2>検索</h2></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </nav>
+                        <iframe src="/media/html/result/result_{unique_id}.html" style="width:100%; height:100vh; border:none;"></iframe>
+                    </body>
+                    </html>
+                    """
+
+                    return HttpResponse(result)
                 except Exception as e:
                     traceback.print_exc()
                     params['error_msg_1'] = f"エラー：予期せぬエラー\nエラーの詳細：\n{e}"

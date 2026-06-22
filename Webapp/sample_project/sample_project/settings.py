@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '://pythonanywhere.com']
 
+# 追記（6/22）
+# iframe を使えるようにするために "DENY" ではなく "SAMEORIGIN" にする
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
 
 # Application definition
 
