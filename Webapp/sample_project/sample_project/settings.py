@@ -118,6 +118,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
 # media の設定を追加（5/26）
 MEDIA_URL = '/media/' # ブラウザ用の「ＵＲＬの頭」
 MEDIA_ROOT = BASE_DIR / 'media' # サーバー内の「絶対パス」

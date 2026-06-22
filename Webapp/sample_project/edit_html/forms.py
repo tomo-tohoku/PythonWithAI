@@ -19,6 +19,8 @@ class ArrangeForm(forms.Form):
         widget = forms.TextInput(attrs = {'class': 'form-control'}))
     selected_id = forms.CharField(label = "ＩＤの選択", required = False, \
         widget = forms.TextInput(attrs = {'class': 'form-control'}))
+    attr = forms.CharField(label = "書き込む属性", required = False,
+        widget = forms.TextInput(attrs = {'class': 'form-control'}))
     style_area = forms.CharField(label = '挿入する style 属性の中身を入力してください', required = True, \
         widget = forms.Textarea(
             attrs = {

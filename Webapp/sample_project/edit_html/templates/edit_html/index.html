@@ -8,7 +8,117 @@
     <title>edit_html</title>
 </head>
 <body>
-    <h1 class="display-4 p-3 fw-bold text-primary bg-info">edit_html</h1>
+    {% comment %} <nav class="navbar fixed-top navbar-expand navbar-light bg-light" style="height: 60px;">
+        <ul style="width:100%" class="navbar-nav mr-auto align-items-center justify-content-between">
+            <li class="nav-item"><a href="" class="nav-link"><img src="{% static 'edit_html/images/sitepick.png' %}" alt="SitePick" style="height: 60px;"></a></li>
+            <li class="nav-item"><a href="" class="nav-link">top</a></li>
+            <li class="nav-item"><a href="" class="nav-link">post</a></li>
+            <li class="nav-item"><a href="" class="nav-link">good</a></li>
+            <li class="nav-item nav-link fw-bold text-primary">
+                logined: "{{ login_user }}"
+            </li>
+        </ul>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-controls="menu" aria-expanded="false" aria-label="ナビゲーション切替">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="menu">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">リンク1</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">リンク2</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">リンク3</a>
+                </li>
+            </ul>
+        </div>
+        <form class="row gx-2 my-2 my-lg-0">
+            <div class="col-auto">
+                <input class="form-control me-sm-2" type="search" placeholder="検索" aria-label="検索">
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-light my-2 my-sm-0" type="submit">検索</button>
+            </div>
+        </form>
+    </nav> {% endcomment %}
+
+    {% comment %} <nav class="navbar p-0 navbar-light bg-light fixed-top">
+        <div class="container-fluid">
+            <!-- ロゴ -->
+            <a class="navbar-brand" href="">
+                <img src="{% static 'edit_html/images/sitepick.png' %}" style="height: 60px;">
+            </a>
+
+            <!-- ハンバーガー -->
+            <button class="navbar-toggler ms-auto"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- 開閉するメニュー -->
+            <div class="collapse navbar-collapse" id="menu">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="">top</a></li>
+                    <li class="nav-item"><a class="nav-link" href="">post</a></li>
+                    <li class="nav-item"><a class="nav-link" href="">good</a></li>
+                    <li class="nav-item">
+                        <span class="nav-link fw-bold text-primary">
+                            logined: "{{ login_user }}"
+                        </span>
+                    </li>
+                </ul>
+
+                <form class="d-flex mt-2">
+                    <input class="form-control me-2" type="search" placeholder="検索">
+                    <button class="btn btn-outline-primary">検索</button>
+                </form>
+            </div>
+        </div>
+    </nav> {% endcomment %}
+
+    <nav class="navbar navbar-expand-lg p-0 navbar-light bg-light fixed-top">
+        <div class="container-fluid">
+
+            <!-- ロゴ -->
+            <a class="navbar-brand" href="">
+                <img src="{% static 'edit_html/images/sitepick.png' %}" style="height:60px;">
+            </a>
+
+            <!-- ハンバーガー -->
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#menu"
+                    aria-controls="menu"
+                    aria-expanded="false">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- メニュー -->
+            <div class="collapse navbar-collapse justify-content-end" id="menu">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link mx-lg-5" href=""><h2>Top</h2></a></li>
+                    <li class="nav-item"><a class="nav-link mx-lg-5" href=""><h2>Post</h2></a></li>
+                    <li class="nav-item"><a class="nav-link mx-lg-5" href=""><h2>Good</h2></a></li>
+                </ul>
+
+                <span class="navbar-text mx-lg-5 fw-bold text-primary">
+                    <h2>logined: "{{ login_user }}"</h2>
+                </span>
+
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="検索">
+                    <button class="btn btn-primary">検索</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <h1 class="display-4 p-3 fw-bold text-primary bg-info" style="margin-top: 60px;">edit_html</h1>
     <!-- linebreaksbr を入れることで、\n が反映される-->
     <div class="container-fluid">
         <h2 class = "fw-bold">すぐにＨＴＭＬデータを取得およびアレンジして表示する</h2>
@@ -32,9 +142,7 @@
         </form>
 
         <div class="accordion mb-3" id="accordion">
-            <!-- アコーディオン01 -->
             <div class="accordion-item">
-                <!-- アコーディオンヘッダー -->
                 <div class="accordion-header" id="headingOne">
                     <h5 class="mb-0">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
@@ -42,7 +150,6 @@
                         </button>
                     </h5>
                 </div>
-                <!-- コンテンツ -->
                 <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordion">
                     <div class="accordion-body">
                         <p>（文字の色を設定する）color: red;　または　color: #FF0000;</p>
@@ -77,5 +184,19 @@
             </table>
         </form>
     </div>
+
+    <footer class="d-flex flex-column container-fluid" style="background-color: #BEBEBE;">
+        <div class="row my-3">
+            <img src="{% static 'edit_html/images/sitepick.png' %}" alt="SitePick" style="width: 300px;">
+        </div>
+        {% comment %} <span class="font-weight-bold">
+            <a href="/admin/logout?next=/sns/">
+                [ logout ]
+            </a>
+        </span> {% endcomment %}
+        <span class="row m-1 float-right">
+            © 2026 Tomoya Irie
+        </span>
+    </footer>
 </body>
 </html>
