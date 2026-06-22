@@ -1,0 +1,58 @@
+{% extends 'accounts/layout.html' %}
+
+{% block title %}login{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow">
+                <div class="card-body">
+
+                    <h3 class="text-center mb-4">新規登録</h3>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {{ form.errors }}
+
+                        <div class="mb-3">
+                            <label>ユーザー名</label>
+                            {{ form.username }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label>パスワード（8文字以上20文字以下）</label>
+                            {{ form.password }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label>パスワード確認</label>
+                            {{ form.password_confirm }}
+                        </div>
+
+                        <button class="btn btn-success w-100">
+                            登録する
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <div class="row justify-content-center my-1">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <a href="{% url 'login' %}" class="text-decoration-none">
+                    <div class="card-body">
+                        <h3 class="text-black text-center m-2">ログイン画面に戻る</h3>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

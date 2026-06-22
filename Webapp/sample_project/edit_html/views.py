@@ -61,12 +61,13 @@ async def result(request):
         if "get-it-now" in request.POST:
             # intermediate_html が生成されて、result_html が生成されないという不均衡を解消する
             unique_id = await sync_to_async(request.session.get)("unique_id")
-            try:
-                html_file = await sync_to_async(HtmlFile.objects.get)(intermediate_file__endswith = unique_id + ".html")
-                if not html_file.result_file:
-                    await sync_to_async(html_file.delete)()
-            except HtmlFile.DoesNotExist:
-                print("データなし")
+            if unique_id is not None:
+                try:
+                    html_file = await sync_to_async(HtmlFile.objects.get)(intermediate_file__endswith = unique_id + ".html")
+                    if not html_file.result_file:
+                        await sync_to_async(html_file.delete)()
+                except HtmlFile.DoesNotExist:
+                    print("データなし")
 
             params = {
                 'error_msg_1': '',
@@ -247,12 +248,13 @@ async def arrange(request):
     if request.method == "POST":
         # intermediate_html が生成されて、result_html が生成されないという不均衡を解消する
         unique_id = await sync_to_async(request.session.get)("unique_id")
-        try:
-            html_file = await sync_to_async(HtmlFile.objects.get)(intermediate_file__endswith = unique_id + ".html")
-            if not html_file.result_file:
-                await sync_to_async(html_file.delete)()
-        except HtmlFile.DoesNotExist:
-            print("データなし")
+        if unique_id is not None:
+            try:
+                html_file = await sync_to_async(HtmlFile.objects.get)(intermediate_file__endswith = unique_id + ".html")
+                if not html_file.result_file:
+                    await sync_to_async(html_file.delete)()
+            except HtmlFile.DoesNotExist:
+                print("データなし")
 
         params = {
             'error_msg_1': '',
