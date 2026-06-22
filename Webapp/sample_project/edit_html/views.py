@@ -201,7 +201,6 @@ def result(request):
 
             return HttpResponse(result_html)
 
-
 async def arrange(request):
     if request.method == "POST":
         params = {
