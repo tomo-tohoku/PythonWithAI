@@ -6,25 +6,21 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <title>{{ title }}</title>
 </head>
-<body style="margin-top: 180px;">
+<body style="margin-top: 120px;">
     <div class="container-fluid fixed-top">
-      <!-- カードの枠：card -->
-      <div class="row">
-        <div class="card col m-3" style="background-color: rgba(255, 255, 255, 0.8);">
-          <!-- カード上部にレイアウトされる画像：card-img-top -->
-          <!-- <img class="card-img-top" src="https://via.placeholder.com/318x180.png&text=img" alt="..."> -->
-          <!-- カード本文：card-body -->
-          <div class="card-body">
-            <!-- カード見出し：card-title -->
-            <h4 class="card-title">カードの見出し</h4>
-            <!-- カードの副見出し：card-subtitle -->
-            <h6 class="card-subtitle">カードの副見出し</h6>
-            <!-- カードの内容文：card-text -->
-            <p class="card-text">カードの内容文が入ります。</p>
-            <a href="#" class="btn btn-primary">ボタン</a>
-          </div>
+        <div class="row">
+            <div class="card col m-3" style="background-color: rgba(242, 242, 242, 0.8);">
+                <div class="card-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <h4 class="card-text col-4">以下のサイトを保存しますか？</h4>
+                            <a href="#" class="btn btn-danger col-3 offset-1">保存せずに戻る</a>
+                            <a href="#" class="btn btn-primary col-3 offset-1">保存する</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
     <iframe src="/media/html/result/result_{{ unique_id }}.html" style="width:100%; height:100vh; border:none;"></iframe>
 </body>
