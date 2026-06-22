@@ -21,6 +21,7 @@ from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse # ＵＲＬ名から https://ドメイン名/ の部分を取り出す
 from asgiref.sync import sync_to_async
 from playwright.async_api import async_playwright
+from django.contrib import messages
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 INTERMEDIATE_FILE_PATH = os.path.join(BASE_DIR, "templates/edit_html/intermediate.html")
@@ -37,17 +38,35 @@ def index(request):
         }
         return render(request, 'edit_html/index.html', params)
 
-def result(request):
+async def result(request):
     if request.method == "GET":
-        if FILE_PATH_OBJ.exists() == True and FILE_PATH_OBJ.is_file() == True:
-            params = {
-                'error_msg_1': '',
-                'error_msg_2': '',
-                'edit_form': EditForm()
-            }
-            return render(request, 'edit_html/result.html', params)
+        params = {
+            'error_msg_1': '',
+            'error_msg_2': '',
+            'edit_form': EditForm()
+        }
+        if "action" in request.GET:
+            if request.GET["action"] == "save":
+                messages.success(request, "サイトを保存しました")
+                return render(request, 'edit_html/index.html', params)
+            elif request.GET["action"] == "not_save":
+                html_file_id = await sync_to_async(
+                    request.session.get
+                )("html_file_id")
+                html_file = await sync_to_async(HtmlFile.objects.get)(id=html_file_id)
+                await sync_to_async(html_file.delete)()
+                messages.success(request, "サイトの保存を取り消しました")
+                return render(request, 'edit_html/index.html', params)
         else:
-            return redirect(to = '/edit_html')
+            if FILE_PATH_OBJ.exists() == True and FILE_PATH_OBJ.is_file() == True:
+                params = {
+                    'error_msg_1': '',
+                    'error_msg_2': '',
+                    'edit_form': EditForm()
+                }
+                return render(request, 'edit_html/result.html', params)
+            else:
+                return redirect(to = '/edit_html')
     elif request.method == "POST":
         if "get-it-now" in request.POST:
             params = {
@@ -61,27 +80,27 @@ def result(request):
             # フォームデータ取得
             url = request.POST['url']
 
-            # sync_playwright()の終了処理で「Playwrightエンジン全体」を終了させ、ブラウザも終了させる
-            with sync_playwright() as p:
+            # async_playwright()の終了処理で「Playwrightエンジン全体」を終了させ、ブラウザも終了させる
+            async with async_playwright() as p:
                 # ブラウザの起動
                 # headless = True でブラウザを「画面表示なし」で起動する
-                browser = p.chromium.launch(headless = True)
+                browser = await p.chromium.launch(headless = True)
 
                 # ブラウザ内に完全に独立した新しいセッションを作成するメソッド
                 # イメージ：シークレットモードを新しく立ち上げる
                 # user_agent でどのブラウザ・ＯＳからアクセスしているかを名乗るための文字列
-                context = browser.new_context(
+                context = await browser.new_context(
                     user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
                 )
 
                 # 新しいタブの作成
-                page = context.new_page()
+                page = await context.new_page()
 
                 try:
                     # 指定したサイトに移動
                     # ネットワーク通信が発生しなくなるまで待機する
                     # response = page.goto(url, wait_until = 'networkidle', timeout = 5000)
-                    response = page.goto(url, wait_until = 'networkidle', timeout = 15000) # タイムアウトを変更（5/26）
+                    response = await page.goto(url, wait_until = 'networkidle', timeout = 15000) # タイムアウトを変更（5/26）
 
                     # レスポンスが取得できない
                     if response is None:
@@ -98,7 +117,7 @@ def result(request):
                     # time.sleep(2) # time.sleep(2) はあまり良くない
                     page.wait_for_load_state('networkidle') # 追記部分
 
-                    intermediate_html = page.content() # page.content() の返り値は str
+                    intermediate_html = await page.content() # page.content() の返り値は str
                     # print(intermediate_html) # デバッグ用
 
                     soup = BeautifulSoup(intermediate_html, "lxml")
@@ -150,6 +169,12 @@ def result(request):
                     # これで html_file をデータベースに入れる
                     with ThreadPoolExecutor() as executor:
                         executor.submit(html_file.save).result()
+                    
+                    # セッションがそのまま使えない問題を解決する
+                    await sync_to_async(request.session.__setitem__)(
+                        "html_file_id",
+                        html_file.id
+                    )
                     
                     params['unique_id'] = unique_id
 
@@ -288,7 +313,6 @@ async def arrange(request):
                     "html_file_id",
                     html_file.id
                 )
-                # request.session["html_file_id"] = html_file.id
                 request.session["url"] = url
                 request.session["intermediate_file"] = str(soup)
                 request.session["unique_id"] = str(unique_id)

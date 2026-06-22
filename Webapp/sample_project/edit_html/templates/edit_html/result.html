@@ -14,8 +14,8 @@
                     <div class="container-fluid">
                         <div class="row">
                             <h4 class="card-text col-4">以下のサイトを保存しますか？</h4>
-                            <a href="#" class="btn btn-danger col-3 offset-1">保存せずに戻る</a>
-                            <a href="#" class="btn btn-primary col-3 offset-1">保存する</a>
+                            <a href="{% url 'result' %}?action=not_save" class="btn btn-danger col-3 offset-1">保存せずに戻る</a>
+                            <a href="{% url 'result' %}?action=save" class="btn btn-primary col-3 offset-1">保存する</a>
                         </div>
                     </div>
                 </div>
