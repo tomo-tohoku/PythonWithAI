@@ -7,13 +7,30 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body style="margin-top: 90px;">
-    <nav class="navbar navbar-expand-lg p-0 navbar-light bg-light fixed-top">
-        <div class="container-fluid">
-            <!-- SitePick のロゴ -->
-            <a class="navbar-brand" href="{% url 'index_top' %}">
-                <img src="{% static 'edit_html/images/sitepick.png' %}" style="height:60px;">
-            </a>
+    <nav class="navbar navbar-expand navbar-light bg-light fixed-top">
+      <div class="container-fluid">
+
+        <!-- ロゴ -->
+        <a class="navbar-brand" href="{% url 'index_top' %}">
+          <img src="{% static 'edit_html/images/sitepick.png' %}" style="height:60px;">
+        </a>
+
+        <!-- 右側メニュー -->
+        <div class="collapse navbar-collapse">
+          <ul class="navbar-nav ms-auto align-items-center">
+
+            <li class="nav-item">
+              <a class="nav-link text-dark fs-5" href="{% url 'login' %}"><h2>ログイン</h2></a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link text-dark fs-5" href="{% url 'register' %}"><h2>ユーザ登録</h2></a>
+            </li>
+
+          </ul>
         </div>
+
+      </div>
     </nav>
 
     <!-- linebreaksbr を入れることで、\n が反映される-->

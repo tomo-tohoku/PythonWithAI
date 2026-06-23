@@ -1,0 +1,57 @@
+{% extends 'top/layout.html' %}
+
+{% block title %}top{% endblock %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-white rounded-3 shadow-sm">
+    <h1 class="fw-bold">情報を、見逃さない。</h1>
+    <p class="text-muted">
+        SitePickはWebサイトの更新・通知・閲覧履歴をまとめて管理するダッシュボードです。
+    </p>
+    <a class="btn btn-primary" href="{% url 'login' %}">はじめる</a>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">通知の集約</h5>
+                <p class="card-text">
+                    Gmail・Web更新・アプリ通知を一元管理。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">サイト変化検知</h5>
+                <p class="card-text">
+                    Webサイトの更新を自動で検知して通知。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">閲覧履歴の可視化</h5>
+                <p class="card-text">
+                    どこまで読んだか・何回見たかを記録。
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5 p-4 bg-white rounded shadow-sm">
+    <h4>SitePickの特徴</h4>
+    <ul class="mb-0">
+        <li>Webページにメモ（付箋）を追加</li>
+        <li>見た部分をハイライト</li>
+        <li>更新順にサイトを整理</li>
+    </ul>
+</div>
+{% endblock %}

@@ -23,7 +23,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('edit_html/', include('edit_html.urls')),
-    path('', include("accounts.urls"))
+    path('accounts/', include("accounts.urls")),
+    path('', include("top.urls")),
 ]
 
 # static はＵＲＬとフォルダ（ファイル群）を結びつける
